@@ -64,7 +64,7 @@ L'OTBR permet de connecter un réseau **Thread** (protocole IoT sans fil pour la
 - **Espace disque** : ≥ 2 Go libres
 - **Mémoire RAM** : ≥ 1 Go (900 Mo minimum pour la compilation)
 - **Docker** : Docker Engine + Docker Compose plugin
-- **Dépendances** : Voir [validate-openthread-dependencies.sh](#validate-openthread-dependenciessh)
+- **Autres dépendances** : Voir le script dédié `validate-openthread-dependencies.sh`
 
 ---
 
@@ -75,12 +75,12 @@ L'OTBR permet de connecter un réseau **Thread** (protocole IoT sans fil pour la
 **Objectif** : Vérifier que toutes les dépendances système et logicielles sont installées.
 
 **Fonctionnalités** :
-- ✅ Vérification des outils de base (git, curl, make, python3, pip3)
-- ✅ Vérification des outils de compilation (gcc-arm-none-eabi, objcopy)
-- ✅ Vérification des outils de flashage (adafruit-nrfutil)
-- ✅ Vérification de Docker et docker-compose
+- ✅ Vérification des outils de base (`git`, `curl`, `make`, `python3`, `pip3`)
+- ✅ Vérification des outils de compilation (`gcc-arm-none-eabi`, `objcopy`)
+- ✅ Vérification des outils de flashage (`adafruit-nrfutil`, compatible Python 3, installé dans un `venv`)
+- ✅ Vérification de `docker` et `docker-compose`
 - ✅ Vérification des conditions système (IPv6, /dev/net/tun, espace disque, RAM)
-- ✅ Détection des modules Python (pyserial)
+- ✅ Détection des modules Python (`pyserial`)
 
 **Usage** :
 ```bash
@@ -127,7 +127,7 @@ sudo ./validate-nrf52840.sh --dfu
 2. **Compilation du firmware RCP** depuis [openthread/ot-nrf528xx](https://github.com/openthread/ot-nrf528xx)
 3. **Flashage du dongle** en mode DFU (sauf si `--already-flashed`)
 4. **Création de la règle udev** pour un port stable `/dev/nrf52840`
-5. **Génération de docker-compose.yml** avec configuration personnalisable
+5. **Génération de `docker-compose.yml`** avec configuration personnalisable
 6. **Démarrage du conteneur OTBR**
 7. **Formation du réseau Thread** (ou conservation d'un réseau existant)
 
@@ -137,10 +137,10 @@ sudo ./validate-nrf52840.sh --dfu
 **Variables d'environnement** :
 - `NRFUTIL_BIN` : Chemin vers adafruit-nrfutil (ex: `~/gladys_openthread/venv/bin/adafruit-nrfutil`)
 - `INFRA_IF` : Interface réseau (ex: `eth0`, auto-détectée par défaut)
-- `OT_WEB_LISTEN_ADDR` : Adresse d'écoute du web (0.0.0.0 par défaut)
-- `OT_WEB_LISTEN_PORT` : Port du web (8090 par défaut)
-- `OT_REST_LISTEN_ADDR` : Adresse de l'API REST (127.0.0.1 par défaut)
-- `OT_REST_LISTEN_PORT` : Port de l'API REST (8081 par défaut)
+- `OT_WEB_LISTEN_ADDR` : Adresse d'écoute du web (`0.0.0.0` par défaut)
+- `OT_WEB_LISTEN_PORT` : Port du web (`8090` par défaut)
+- `OT_REST_LISTEN_ADDR` : Adresse de l'API REST (`127.0.0.1` par défaut)
+- `OT_REST_LISTEN_PORT` : Port de l'API REST (`8081` par défaut)
 
 **Usage** :
 ```bash
@@ -211,7 +211,7 @@ Exécutez le script de validation des dépendances :
 ```bash
 ./validate-openthread-dependencies.sh
 ```
-voir le [résultat de la validation](./doc/validate-openthread-dependencies.md)
+voir [le résultat de la validation](./doc/validate-openthread-dependencies.md)
 
 Si des paquets sont manquants, installez-les avec :
 ```bash
@@ -261,29 +261,31 @@ sudo NRFUTIL_BIN=~/gladys_openthread/venv/bin/adafruit-nrfutil ./install-otbr.sh
    - La LED doit être **verte** (mode DFU)
    - Relâchez le bouton après le branchement
 3. **Règle udev** : Un alias stable `/dev/nrf52840` est créé
-4. **Configuration Docker** : Fichier `docker-compose.yml` généré
+4. **Configuration Docker** : 
+   - Fichier `docker-compose.yml` généré
+   - Web: port 8090 car le port 80 est occupé par Gladys
 5. **Démarrage** : Le conteneur OTBR démarre
 6. **Réseau Thread** : Un nouveau réseau Thread est créé (ou un existant est conservé)
 
 **Durée estimée** : 10-20 minutes (selon la vitesse de compilation)
 
-Voir le [résultat de l'installation](./doc/install-otbr.md)
+Voir [la trace de l'installation](./doc/install-otbr.md)
 
 ---
 
 ### Étape 5 : Vérification finale
 
 Une fois l'installation terminée, vérifiez que tout fonctionne :
-   ```bash
-   ./validate-otbr.sh
-   ```
-   Voir le [résultat de la validation](./doc/validate-otbr.md)
+```bash
+./validate-otbr.sh
+```
+Voir [lerésultat de la validation](./doc/validate-otbr.md)
 
 Pour un test complet (incluant la persistance) :
-   ```bash
-   ./validate-otbr.sh --persistence
-   ```
-   Voir le [résultat de la validation](./doc/validate-otbr-persistence.md)
+```bash
+./validate-otbr.sh --persistence
+```
+Voir [le résultat de la validation](./doc/validate-otbr-persistence.md) incluant le test de la persistance du réseau.
 
 ---
 
@@ -297,6 +299,9 @@ http://<IP_DU_PI>:8090
 ```
 
 Remplacez `<IP_DU_PI>` par l'adresse IP de votre Raspberry Pi.
+
+<img src="./doc/assets/OpenThread_home_page.png" width="40%"></img>
+
 
 ### Commandes utiles
 
@@ -318,10 +323,19 @@ Remplacez `<IP_DU_PI>` par l'adresse IP de votre Raspberry Pi.
    docker ps
    docker logs otbr
    ```
+   exemple:
+   ```bash
+   pi@rieux:~/gladys_openthread$ docker ps
+   CONTAINER ID   IMAGE                                   COMMAND                  CREATED       STATUS                  PORTS      NAMES
+   14d352e71579   openthread/border-router:latest         "/init"                  8 hours ago   Up 8 hours                         otbr
+   9cdcdc727e37   gladysassistant/gladys:v5               "docker-entrypoint.s…"   3 days ago    Up 32 hours                        gladys
+   a79d580f2704   luligu/matterbridge:latest              "./entrypoint.latest…"   4 days ago    Up 32 hours (healthy)              gladys-matterbridge
+   ```
 
 2. **Périphérique RCP** :
    ```bash
-   ls -l /dev/nrf52840
+   pi@rieux:~/gladys_openthread$ ls -l /dev/nrf52840
+   lrwxrwxrwx 1 root root 7 10 nov.  21:37 /dev/nrf52840 -> ttyACM0
    ```
 
 3. **Interface wpan0** :
@@ -334,6 +348,22 @@ Remplacez `<IP_DU_PI>` par l'adresse IP de votre Raspberry Pi.
    ```bash
    sudo apt install avahi-utils
    avahi-browse -rt _meshcop._udp
+   ```
+   Exemple:
+   ```bash
+   pi@rieux:~/gladys_openthread$ avahi-browse -rt _meshcop._udp
+   +   eth0 IPv6 OpenThread BorderRouter #A32A                 _meshcop._udp        local
+   +   eth0 IPv4 OpenThread BorderRouter #A32A                 _meshcop._udp        local
+   =   eth0 IPv6 OpenThread BorderRouter #A32A                 _meshcop._udp        local
+      hostname = [otba69f5b3d57fa32a.local]
+      address = [fe80::f148:3ffe:1879:1243]
+      port = [49154]
+      txt = ["mn=BorderRouter" "vn=OpenThread" "omr=@??(??\000\001" "dn=DefaultDomain" "bb=?" "sq=}" "at=\000\000\000\000\000\001\000\000" "pt=$4?a" "nn=OpenThread-35ac" "xp=?nA'?b\028c" "xa=?i????*" "tv=1.4.0" "sb=\000\000\031?" "rv=1" "id=T_\028\016???[??\016????"]
+   =   eth0 IPv4 OpenThread BorderRouter #A32A                 _meshcop._udp        local
+      hostname = [otba69f5b3d57fa32a.local]
+      address = [fe80::f148:3ffe:1879:1243]
+      port = [49154]
+      txt = ["mn=BorderRouter" "vn=OpenThread" "omr=@??(??\000\001" "dn=DefaultDomain" "bb=?" "sq=}" "at=\000\000\000\000\000\001\000\000" "pt=$4?a" "nn=OpenThread-35ac" "xp=?nA'?b\028c" "xa=?i????*" "tv=1.4.0" "sb=\000\000\031?" "rv=1" "id=T_\028\016???[??\016????"]
    ```
 
 ---
@@ -543,12 +573,17 @@ Les contributions sont les bienvenues ! Veuillez ouvrir une **Issue** ou soumett
 
 ```txt
 gladys_openthread/
-├── doc
-├── README_fr.md                         # Ce fichier
-├── install-otbr.sh                      # Installation complète
-├── validate-openthread-dependencies.sh  # Vérification des dépendances
-├── validate-nrf52840.sh                 # Validation du dongle
-└── validate-otbr.sh                     # Validation de l'OTBR
+               ├── doc/
+               │    ├── assets/
+               │    │    └── ...
+               │    └── ...
+               ├── .gitignore 
+               ├── AGENTS.md                            # les règles pour Mistral CLI
+               ├── install-otbr.sh                      # Installation complète
+               ├── README.md                            # Ce fichier
+               ├── validate-openthread-dependencies.sh  # Vérification des dépendances
+               ├── validate-nrf52840.sh                 # Validation du dongle
+               └── validate-otbr.sh                     # Validation de l'OTBR
 ```
 
 ---
@@ -563,7 +598,7 @@ gladys_openthread/
 
 ## 🔒 Licence
 
-Ce projet est sous licence **MIT**. 
+Ce projet est sous licence **Apache 2.0**. 
 
 ---
 
